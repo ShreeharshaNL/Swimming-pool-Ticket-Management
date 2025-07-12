@@ -186,6 +186,71 @@ app.post('/api/payments/create-intent', authenticateToken, async (req, res) => {
     }
 });
 
+// Mock Payment Processing (India-friendly)
+app.post('/api/payments/mock-process', authenticateToken, async (req, res) => {
+    try {
+        const { paymentId, passTypeId, amount } = req.body;
+        const userId = req.user.userId;
+
+        // Get pass type details
+        const [passTypes] = await db.execute(
+            'SELECT name, price, duration_days FROM pass_types WHERE id = ?',
+            [passTypeId]
+        );
+
+        if (passTypes.length === 0) {
+            return res.status(404).json({ error: 'Pass type not found' });
+        }
+
+        const passType = passTypes[0];
+        const startDate = new Date();
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + passType.duration_days);
+
+        // Generate unique QR code data
+        const qrData = {
+            userId: userId,
+            passId: uuidv4(),
+            passType: passType.name,
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
+            timestamp: Date.now()
+        };
+
+        const qrCodeData = JSON.stringify(qrData);
+
+        // Insert payment record (mock)
+        const [paymentResult] = await db.execute(
+            'INSERT INTO payments (user_id, pass_type_id, amount, payment_method, payment_intent_id, status) VALUES (?, ?, ?, ?, ?, ?)',
+            [userId, passTypeId, passType.price, 'mock_payment', paymentId, 'completed']
+        );
+
+        // Insert user pass
+        const [passResult] = await db.execute(
+            'INSERT INTO user_passes (user_id, pass_type_id, start_date, end_date, qr_code_data, payment_id) VALUES (?, ?, ?, ?, ?, ?)',
+            [userId, passTypeId, startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0], qrCodeData, paymentResult.insertId]
+        );
+
+        // Generate QR code image
+        const qrCodeImage = await QRCode.toDataURL(qrCodeData);
+
+        res.json({
+            message: 'Mock payment successful and pass created',
+            pass: {
+                id: passResult.insertId,
+                passType: passType.name,
+                startDate: startDate.toISOString(),
+                endDate: endDate.toISOString(),
+                qrCode: qrCodeImage,
+                qrData: qrData
+            }
+        });
+    } catch (error) {
+        console.error('Error processing mock payment:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 // Process Payment and Create Pass
 app.post('/api/payments/process', authenticateToken, async (req, res) => {
     try {

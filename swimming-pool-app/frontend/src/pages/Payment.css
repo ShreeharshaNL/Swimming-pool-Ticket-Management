@@ -113,18 +113,50 @@
     gap: 20px;
 }
 
-.card-element-container {
-    padding: 20px;
-    border: 2px solid #e1e5e9;
-    border-radius: 10px;
-    background: #f8f9fa;
-    transition: all 0.3s ease;
+.form-group {
+    margin-bottom: 20px;
 }
 
-.card-element-container:focus-within {
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid #e1e5e9;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.form-input:focus {
+    outline: none;
     border-color: #667eea;
     background: white;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.mock-notice {
+    background: #e8f5e8;
+    color: #2d5a27;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 15px;
+    border: 1px solid #c3e6cb;
 }
 
 .payment-button {
@@ -333,6 +365,11 @@
         width: 120px;
         height: 120px;
     }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -358,5 +395,15 @@
     
     .success-icon {
         font-size: 3rem;
+    }
+    
+    .form-input {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+    }
+    
+    .mock-notice {
+        padding: 10px;
+        font-size: 0.8rem;
     }
 }

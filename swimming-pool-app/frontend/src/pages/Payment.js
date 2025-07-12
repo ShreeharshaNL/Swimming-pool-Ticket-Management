@@ -1,110 +1,127 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { loadStripe } from '@stripe/stripe-js';
-import {
-    Elements,
-    CardElement,
-    useStripe,
-    useElements
-} from '@stripe/react-stripe-js';
 import axios from 'axios';
 import './Payment.css';
 
-// Initialize Stripe (use your publishable key here)
-const stripePromise = loadStripe('pk_test_51234567890abcdef'); // Replace with your Stripe publishable key
-
-const PaymentForm = ({ passType, onPaymentSuccess }) => {
-    const stripe = useStripe();
-    const elements = useElements();
+// Mock Payment Form Component
+const MockPaymentForm = ({ passType, onPaymentSuccess }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [clientSecret, setClientSecret] = useState('');
+    const [formData, setFormData] = useState({
+        cardNumber: '',
+        expiryDate: '',
+        cvv: '',
+        cardholderName: ''
+    });
 
-    const createPaymentIntent = useCallback(async () => {
-        try {
-            const response = await axios.post('http://localhost:5000/api/payments/create-intent', {
-                passTypeId: passType.id
-            });
-            setClientSecret(response.data.clientSecret);
-        } catch (error) {
-            setError('Failed to initialize payment');
-        }
-    }, [passType.id]);
-
-    useEffect(() => {
-        createPaymentIntent();
-    }, [createPaymentIntent]);
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+    };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         setLoading(true);
         setError('');
 
-        if (!stripe || !elements) {
-            setError('Stripe has not loaded yet');
+        // Basic validation
+        if (!formData.cardNumber || !formData.expiryDate || !formData.cvv || !formData.cardholderName) {
+            setError('Please fill in all fields');
             setLoading(false);
             return;
         }
 
-        const card = elements.getElement(CardElement);
-
-        // Confirm payment
-        const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-            payment_method: {
-                card: card,
-            }
-        });
-
-        if (error) {
-            setError(error.message);
-            setLoading(false);
-        } else {
-            // Payment succeeded
+        // Simulate payment processing
+        setTimeout(async () => {
             try {
-                const response = await axios.post('http://localhost:5000/api/payments/process', {
-                    paymentIntentId: paymentIntent.id,
-                    passTypeId: passType.id
+                // Mock successful payment
+                const mockPaymentId = 'mock_payment_' + Date.now();
+                
+                // Create pass without real payment processing
+                const response = await axios.post('http://localhost:5000/api/payments/mock-process', {
+                    paymentId: mockPaymentId,
+                    passTypeId: passType.id,
+                    amount: passType.price
                 });
                 
                 onPaymentSuccess(response.data.pass);
             } catch (error) {
-                setError('Payment succeeded but failed to create pass');
+                setError('Payment processing failed. Please try again.');
             }
-        }
-        
-        setLoading(false);
+            setLoading(false);
+        }, 2000); // Simulate 2 second processing time
     };
 
     return (
         <form onSubmit={handleSubmit} className="payment-form">
-            <div className="card-element-container">
-                <CardElement
-                    options={{
-                        style: {
-                            base: {
-                                fontSize: '16px',
-                                color: '#424770',
-                                '::placeholder': {
-                                    color: '#aab7c4',
-                                },
-                            },
-                            invalid: {
-                                color: '#9e2146',
-                            },
-                        },
-                    }}
+            <div className="form-group">
+                <label>Cardholder Name</label>
+                <input
+                    type="text"
+                    name="cardholderName"
+                    value={formData.cardholderName}
+                    onChange={handleChange}
+                    placeholder="Enter cardholder name"
+                    className="form-input"
                 />
             </div>
-            
+
+            <div className="form-group">
+                <label>Card Number</label>
+                <input
+                    type="text"
+                    name="cardNumber"
+                    value={formData.cardNumber}
+                    onChange={handleChange}
+                    placeholder="1234 5678 9012 3456"
+                    maxLength="19"
+                    className="form-input"
+                />
+            </div>
+
+            <div className="form-row">
+                <div className="form-group">
+                    <label>Expiry Date</label>
+                    <input
+                        type="text"
+                        name="expiryDate"
+                        value={formData.expiryDate}
+                        onChange={handleChange}
+                        placeholder="MM/YY"
+                        maxLength="5"
+                        className="form-input"
+                    />
+                </div>
+                
+                <div className="form-group">
+                    <label>CVV</label>
+                    <input
+                        type="text"
+                        name="cvv"
+                        value={formData.cvv}
+                        onChange={handleChange}
+                        placeholder="123"
+                        maxLength="3"
+                        className="form-input"
+                    />
+                </div>
+            </div>
+
             {error && <div className="error-message">{error}</div>}
             
             <button 
                 type="submit" 
-                disabled={!stripe || loading || !clientSecret}
+                disabled={loading}
                 className="payment-button"
             >
-                {loading ? 'Processing...' : `Pay $${passType.price}`}
+                {loading ? 'Processing...' : `Pay ₹${(passType.price * 83).toFixed(2)}`}
             </button>
+
+            <div className="mock-notice">
+                💡 This is a mock payment system for testing. No real charges will be made.
+            </div>
         </form>
     );
 };
@@ -201,14 +218,14 @@ const Payment = () => {
             <div className="payment-card">
                 <div className="payment-header">
                     <h2>Complete Your Purchase</h2>
-                    <p>Secure payment powered by Stripe</p>
+                    <p>🇮🇳 Mock Payment System (India-Friendly)</p>
                 </div>
                 
                 <div className="pass-summary">
                     <h3>{passType.name}</h3>
                     <p>{passType.description}</p>
                     <div className="price-display">
-                        <span className="price">${passType.price}</span>
+                        <span className="price">₹{(passType.price * 83).toFixed(2)}</span>
                         <span className="duration">
                             {passType.duration_days === 1 ? 'Per Day' : 
                              passType.duration_days === 30 ? 'Per Month' : 
@@ -219,18 +236,16 @@ const Payment = () => {
                 
                 <div className="payment-section">
                     <h4>Payment Information</h4>
-                    <Elements stripe={stripePromise}>
-                        <PaymentForm 
-                            passType={passType} 
-                            onPaymentSuccess={handlePaymentSuccess}
-                        />
-                    </Elements>
+                    <MockPaymentForm 
+                        passType={passType} 
+                        onPaymentSuccess={handlePaymentSuccess}
+                    />
                 </div>
                 
                 <div className="security-notice">
-                    <p>🔒 Your payment information is secure and encrypted</p>
-                    <p>💳 We accept all major credit cards</p>
-                    <p>📱 You'll receive your QR code immediately after payment</p>
+                    <p>🔒 This is a test payment system</p>
+                    <p>💳 No real charges will be made</p>
+                    <p>📱 You'll receive your QR code after mock payment</p>
                 </div>
             </div>
         </div>

@@ -150,7 +150,7 @@ const Home = () => {
                                     <div className="pass-header">
                                         <h3>{pass.name}</h3>
                                         <div className="pass-price">
-                                            <span className="price">${pass.price}</span>
+                                            <span className="price">₹{(pass.price * 83).toFixed(2)}</span>
                                             <span className="duration">
                                                 {pass.duration_days === 1 ? 'Per Day' : 
                                                  pass.duration_days === 30 ? 'Per Month' : 
