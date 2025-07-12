@@ -10,7 +10,6 @@ const Home = () => {
     const navigate = useNavigate();
     const { user, demoMode } = useAuth();
 
-    // Demo data for GitHub Pages
     const demoPassTypes = [
         {
             id: 1,
@@ -30,7 +29,7 @@ const Home = () => {
             id: 3,
             name: 'Yearly Pass',
             description: 'Access to swimming pool for one year',
-            price: 10.00,
+            price: 10.0,
             duration_days: 365
         }
     ];
@@ -41,30 +40,17 @@ const Home = () => {
 
     const fetchPassTypes = async () => {
         if (demoMode) {
-            // Use demo data when backend is not available
             setPassTypes(demoPassTypes);
             setLoading(false);
             return;
         }
 
-
-    const { user } = useAuth();
-
-    useEffect(() => {
-        fetchPassTypes();
-    }, []);
-
-    const fetchPassTypes = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/pass-types');
             setPassTypes(response.data);
         } catch (error) {
             console.error('Error fetching pass types:', error);
-
-            // Fallback to demo data
             setPassTypes(demoPassTypes);
-
-
         } finally {
             setLoading(false);
         }
@@ -75,20 +61,17 @@ const Home = () => {
             navigate('/login');
             return;
         }
-        
+
         if (demoMode) {
             alert('Demo Mode: In a real deployment, this would redirect to payment processing!');
             return;
         }
-        
-
 
         navigate(`/payment/${passId}`);
     };
 
     return (
         <div className="home">
-
             {demoMode && (
                 <div style={{
                     background: '#fff3cd',
@@ -100,8 +83,6 @@ const Home = () => {
                     🚀 Demo Mode: This is a static preview. Backend features are simulated.
                 </div>
             )}
-            
-
 
             {/* Hero Section */}
             <section className="hero">
@@ -109,9 +90,9 @@ const Home = () => {
                     <h1>Welcome to AquaPass</h1>
                     <p>Your Gateway to Premium Swimming Experience</p>
                     <div className="hero-image">
-                        <img 
-                            src="https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
-                            alt="Swimming Pool" 
+                        <img
+                            src="https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                            alt="Swimming Pool"
                         />
                     </div>
                 </div>
@@ -124,8 +105,8 @@ const Home = () => {
                     <div className="about-content">
                         <div className="about-text">
                             <p>
-                                Experience the ultimate aquatic adventure at our state-of-the-art swimming facility. 
-                                Our crystal-clear waters and modern amenities provide the perfect environment for 
+                                Experience the ultimate aquatic adventure at our state-of-the-art swimming facility.
+                                Our crystal-clear waters and modern amenities provide the perfect environment for
                                 fitness, recreation, and relaxation.
                             </p>
                             <ul>
@@ -138,13 +119,13 @@ const Home = () => {
                             </ul>
                         </div>
                         <div className="about-images">
-                            <img 
-                                src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" 
-                                alt="Pool Facilities" 
+                            <img
+                                src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                                alt="Pool Facilities"
                             />
-                            <img 
-                                src="https://images.unsplash.com/photo-1530549387789-4c1017266635?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" 
-                                alt="Swimming Activities" 
+                            <img
+                                src="https://images.unsplash.com/photo-1530549387789-4c1017266635?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                                alt="Swimming Activities"
                             />
                         </div>
                     </div>
@@ -156,7 +137,7 @@ const Home = () => {
                 <div className="container">
                     <h2>Choose Your Pass</h2>
                     <p>Select the perfect pass for your swimming needs</p>
-                    
+
                     {loading ? (
                         <div className="loading">Loading pass options...</div>
                     ) : (
@@ -166,15 +147,14 @@ const Home = () => {
                                     <div className="pass-header">
                                         <h3>{pass.name}</h3>
                                         <div className="pass-price">
-
                                             <span className="price">₹{(pass.price * 83).toFixed(2)}</span>
-
                                             <span className="price">${pass.price}</span>
-
                                             <span className="duration">
-                                                {pass.duration_days === 1 ? 'Per Day' : 
-                                                 pass.duration_days === 30 ? 'Per Month' : 
-                                                 'Per Year'}
+                                                {pass.duration_days === 1
+                                                    ? 'Per Day'
+                                                    : pass.duration_days === 30
+                                                    ? 'Per Month'
+                                                    : 'Per Year'}
                                             </span>
                                         </div>
                                     </div>
@@ -188,12 +168,11 @@ const Home = () => {
                                             {pass.duration_days > 30 && <p>✓ Priority booking</p>}
                                         </div>
                                     </div>
-                                    <button 
+                                    <button
                                         className="buy-button"
                                         onClick={() => handleBuyPass(pass.id)}
                                     >
                                         {user ? (demoMode ? 'View Demo' : 'Buy Now') : 'Login to Buy'}
-                                        {user ? 'Buy Now' : 'Login to Buy'}
                                     </button>
                                 </div>
                             ))}

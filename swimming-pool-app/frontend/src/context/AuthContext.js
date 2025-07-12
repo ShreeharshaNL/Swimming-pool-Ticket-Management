@@ -15,11 +15,9 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(localStorage.getItem('token'));
     const [loading, setLoading] = useState(true);
-
     const [demoMode, setDemoMode] = useState(false);
 
     useEffect(() => {
-        // Check if backend is available
         const checkBackend = async () => {
             try {
                 await axios.get('http://localhost:5000/health');
@@ -31,16 +29,15 @@ export const AuthProvider = ({ children }) => {
             setLoading(false);
         };
 
-        if (token && !demoMode) {
+        if (token) {
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         }
-        
+
         checkBackend();
-    }, [token, demoMode]);
+    }, [token]);
 
     const login = async (email, password) => {
         if (demoMode) {
-            // Demo login
             const demoUser = {
                 id: 1,
                 username: 'demo_user',
@@ -53,43 +50,28 @@ export const AuthProvider = ({ children }) => {
             return { success: true };
         }
 
-
-
-    useEffect(() => {
-        if (token) {
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            // You could add user info validation here
-        }
-        setLoading(false);
-    }, [token]);
-
-    const login = async (email, password) => {
-
         try {
             const response = await axios.post('http://localhost:5000/api/auth/login', {
                 email,
                 password
             });
-            
+
             const { token, user } = response.data;
             setToken(token);
             setUser(user);
             localStorage.setItem('token', token);
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            
             return { success: true };
         } catch (error) {
-            return { 
-                success: false, 
-                error: error.response?.data?.error || 'Login failed' 
+            return {
+                success: false,
+                error: error.response?.data?.error || 'Login failed'
             };
         }
     };
 
     const register = async (userData) => {
-
         if (demoMode) {
-            // Demo registration
             const demoUser = {
                 id: 1,
                 username: userData.username,
@@ -102,21 +84,19 @@ export const AuthProvider = ({ children }) => {
             return { success: true };
         }
 
-
         try {
             const response = await axios.post('http://localhost:5000/api/auth/register', userData);
-            
+
             const { token, user } = response.data;
             setToken(token);
             setUser(user);
             localStorage.setItem('token', token);
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            
             return { success: true };
         } catch (error) {
-            return { 
-                success: false, 
-                error: error.response?.data?.error || 'Registration failed' 
+            return {
+                success: false,
+                error: error.response?.data?.error || 'Registration failed'
             };
         }
     };
@@ -134,12 +114,8 @@ export const AuthProvider = ({ children }) => {
         login,
         register,
         logout,
-
         loading,
         demoMode
-
-        loading
-
     };
 
     return (

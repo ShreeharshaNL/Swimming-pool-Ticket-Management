@@ -7,25 +7,24 @@
     padding: 20px;
 }
 
-.payment-card {
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    width: 100%;
-    max-width: 600px;
-    animation: slideUp 0.6s ease-out;
-}
-
+.payment-card,
 .success-card {
     background: white;
     border-radius: 20px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    animation: slideUp 0.6s ease-out;
+}
+
+.payment-card {
+    max-width: 600px;
+    overflow: hidden;
+}
+
+.success-card {
     padding: 40px;
     text-align: center;
-    width: 100%;
     max-width: 500px;
-    animation: slideUp 0.6s ease-out;
 }
 
 @keyframes slideUp {
@@ -137,6 +136,8 @@
 
 .form-input:focus {
     outline: none;
+}
+
 .card-element-container {
     padding: 20px;
     border: 2px solid #e1e5e9;
@@ -326,96 +327,90 @@
     .payment-container {
         padding: 15px;
     }
-    
-    .payment-card {
-        max-width: 100%;
-    }
-    
+
+    .payment-card,
     .success-card {
         max-width: 100%;
         padding: 30px 20px;
     }
-    
+
     .payment-header {
         padding: 30px 20px;
     }
-    
+
     .payment-header h2 {
         font-size: 1.6rem;
     }
-    
+
     .pass-summary {
         padding: 20px;
     }
-    
+
     .price-display {
         flex-direction: column;
         gap: 10px;
         text-align: center;
     }
-    
+
     .price {
         font-size: 1.8rem;
     }
-    
+
     .payment-section {
         padding: 20px;
     }
-    
+
     .security-notice {
         padding: 15px 20px;
     }
-    
+
     .pass-details {
         padding: 20px;
     }
-    
+
     .qr-code {
         width: 120px;
         height: 120px;
     }
-    
+
     .form-row {
         grid-template-columns: 1fr;
         gap: 10px;
     }
-
 }
 
 @media (max-width: 480px) {
     .payment-container {
         padding: 10px;
     }
-    
+
     .payment-header h2 {
         font-size: 1.4rem;
     }
-    
+
     .pass-summary h3 {
         font-size: 1.3rem;
     }
-    
+
     .price {
         font-size: 1.6rem;
     }
-    
+
     .success-card h2 {
         font-size: 1.6rem;
     }
-    
+
     .success-icon {
         font-size: 3rem;
     }
 
-    
     .form-input {
         padding: 12px 16px;
         font-size: 0.9rem;
     }
-    
+
     .mock-notice {
         padding: 10px;
         font-size: 0.8rem;
     }
-
 }
