@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import {
@@ -20,11 +20,7 @@ const PaymentForm = ({ passType, onPaymentSuccess }) => {
     const [error, setError] = useState('');
     const [clientSecret, setClientSecret] = useState('');
 
-    useEffect(() => {
-        createPaymentIntent();
-    }, []);
-
-    const createPaymentIntent = async () => {
+    const createPaymentIntent = useCallback(async () => {
         try {
             const response = await axios.post('http://localhost:5000/api/payments/create-intent', {
                 passTypeId: passType.id
@@ -33,7 +29,11 @@ const PaymentForm = ({ passType, onPaymentSuccess }) => {
         } catch (error) {
             setError('Failed to initialize payment');
         }
-    };
+    }, [passType.id]);
+
+    useEffect(() => {
+        createPaymentIntent();
+    }, [createPaymentIntent]);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -118,11 +118,7 @@ const Payment = () => {
     const [paymentSuccess, setPaymentSuccess] = useState(false);
     const [purchasedPass, setPurchasedPass] = useState(null);
 
-    useEffect(() => {
-        fetchPassType();
-    }, [passId]);
-
-    const fetchPassType = async () => {
+    const fetchPassType = useCallback(async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/pass-types');
             const selectedPass = response.data.find(pass => pass.id === parseInt(passId));
@@ -137,7 +133,11 @@ const Payment = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [passId]);
+
+    useEffect(() => {
+        fetchPassType();
+    }, [fetchPassType]);
 
     const handlePaymentSuccess = (pass) => {
         setPurchasedPass(pass);
