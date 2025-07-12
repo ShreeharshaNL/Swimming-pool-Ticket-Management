@@ -28,9 +28,9 @@ CREATE TABLE pass_types (
 
 -- Insert default pass types
 INSERT INTO pass_types (name, description, price, duration_days) VALUES 
-('Daily Pass', 'Access to swimming pool for one day', 15.00, 1),
-('Monthly Pass', 'Access to swimming pool for one month', 120.00, 30),
-('Yearly Pass', 'Access to swimming pool for one year', 1000.00, 365);
+('Daily Pass', 'Access to swimming pool for one day', 0.01, 1),
+('Monthly Pass', 'Access to swimming pool for one month', 0.002, 30),
+('Yearly Pass', 'Access to swimming pool for one year', 10.00, 365);
 
 -- User passes table
 CREATE TABLE user_passes (

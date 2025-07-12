@@ -16,21 +16,21 @@ const Home = () => {
             id: 1,
             name: 'Daily Pass',
             description: 'Access to swimming pool for one day',
-            price: 15.00,
+            price: 0.01,
             duration_days: 1
         },
         {
             id: 2,
             name: 'Monthly Pass',
             description: 'Access to swimming pool for one month',
-            price: 120.00,
+            price: 0.002,
             duration_days: 30
         },
         {
             id: 3,
             name: 'Yearly Pass',
             description: 'Access to swimming pool for one year',
-            price: 1000.00,
+            price: 10.00,
             duration_days: 365
         }
     ];
