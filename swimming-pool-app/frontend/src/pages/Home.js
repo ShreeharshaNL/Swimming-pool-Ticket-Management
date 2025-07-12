@@ -8,6 +8,46 @@ const Home = () => {
     const [passTypes, setPassTypes] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const { user, demoMode } = useAuth();
+
+    // Demo data for GitHub Pages
+    const demoPassTypes = [
+        {
+            id: 1,
+            name: 'Daily Pass',
+            description: 'Access to swimming pool for one day',
+            price: 0.01,
+            duration_days: 1
+        },
+        {
+            id: 2,
+            name: 'Monthly Pass',
+            description: 'Access to swimming pool for one month',
+            price: 0.002,
+            duration_days: 30
+        },
+        {
+            id: 3,
+            name: 'Yearly Pass',
+            description: 'Access to swimming pool for one year',
+            price: 10.00,
+            duration_days: 365
+        }
+    ];
+
+    useEffect(() => {
+        fetchPassTypes();
+    }, [demoMode]);
+
+    const fetchPassTypes = async () => {
+        if (demoMode) {
+            // Use demo data when backend is not available
+            setPassTypes(demoPassTypes);
+            setLoading(false);
+            return;
+        }
+
+
     const { user } = useAuth();
 
     useEffect(() => {
@@ -20,6 +60,11 @@ const Home = () => {
             setPassTypes(response.data);
         } catch (error) {
             console.error('Error fetching pass types:', error);
+
+            // Fallback to demo data
+            setPassTypes(demoPassTypes);
+
+
         } finally {
             setLoading(false);
         }
@@ -30,11 +75,34 @@ const Home = () => {
             navigate('/login');
             return;
         }
+        
+        if (demoMode) {
+            alert('Demo Mode: In a real deployment, this would redirect to payment processing!');
+            return;
+        }
+        
+
+
         navigate(`/payment/${passId}`);
     };
 
     return (
         <div className="home">
+
+            {demoMode && (
+                <div style={{
+                    background: '#fff3cd',
+                    color: '#856404',
+                    padding: '10px',
+                    textAlign: 'center',
+                    borderBottom: '1px solid #ffeaa7'
+                }}>
+                    🚀 Demo Mode: This is a static preview. Backend features are simulated.
+                </div>
+            )}
+            
+
+
             {/* Hero Section */}
             <section className="hero">
                 <div className="hero-content">
@@ -98,7 +166,11 @@ const Home = () => {
                                     <div className="pass-header">
                                         <h3>{pass.name}</h3>
                                         <div className="pass-price">
+
+                                            <span className="price">₹{(pass.price * 83).toFixed(2)}</span>
+
                                             <span className="price">${pass.price}</span>
+
                                             <span className="duration">
                                                 {pass.duration_days === 1 ? 'Per Day' : 
                                                  pass.duration_days === 30 ? 'Per Month' : 
@@ -120,6 +192,7 @@ const Home = () => {
                                         className="buy-button"
                                         onClick={() => handleBuyPass(pass.id)}
                                     >
+                                        {user ? (demoMode ? 'View Demo' : 'Buy Now') : 'Login to Buy'}
                                         {user ? 'Buy Now' : 'Login to Buy'}
                                     </button>
                                 </div>

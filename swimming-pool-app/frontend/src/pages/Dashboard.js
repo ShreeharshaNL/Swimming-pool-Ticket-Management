@@ -109,7 +109,11 @@ const Dashboard = () => {
                                                 </div>
                                                 <div className="info-item">
                                                     <span className="info-label">Price:</span>
+
+                                                    <span className="info-value">₹{(pass.price * 83).toFixed(2)}</span>
+
                                                     <span className="info-value">${pass.price}</span>
+
                                                 </div>
                                                 <div className="info-item">
                                                     <span className="info-label">Purchased:</span>
