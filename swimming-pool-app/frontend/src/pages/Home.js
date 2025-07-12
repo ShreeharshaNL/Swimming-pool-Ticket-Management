@@ -47,13 +47,24 @@ const Home = () => {
             return;
         }
 
+
+    const { user } = useAuth();
+
+    useEffect(() => {
+        fetchPassTypes();
+    }, []);
+
+    const fetchPassTypes = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/pass-types');
             setPassTypes(response.data);
         } catch (error) {
             console.error('Error fetching pass types:', error);
+
             // Fallback to demo data
             setPassTypes(demoPassTypes);
+
+
         } finally {
             setLoading(false);
         }
@@ -70,11 +81,14 @@ const Home = () => {
             return;
         }
         
+
+
         navigate(`/payment/${passId}`);
     };
 
     return (
         <div className="home">
+
             {demoMode && (
                 <div style={{
                     background: '#fff3cd',
@@ -87,6 +101,8 @@ const Home = () => {
                 </div>
             )}
             
+
+
             {/* Hero Section */}
             <section className="hero">
                 <div className="hero-content">
@@ -150,7 +166,11 @@ const Home = () => {
                                     <div className="pass-header">
                                         <h3>{pass.name}</h3>
                                         <div className="pass-price">
+
                                             <span className="price">₹{(pass.price * 83).toFixed(2)}</span>
+
+                                            <span className="price">${pass.price}</span>
+
                                             <span className="duration">
                                                 {pass.duration_days === 1 ? 'Per Day' : 
                                                  pass.duration_days === 30 ? 'Per Month' : 
@@ -173,6 +193,7 @@ const Home = () => {
                                         onClick={() => handleBuyPass(pass.id)}
                                     >
                                         {user ? (demoMode ? 'View Demo' : 'Buy Now') : 'Login to Buy'}
+                                        {user ? 'Buy Now' : 'Login to Buy'}
                                     </button>
                                 </div>
                             ))}

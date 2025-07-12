@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(localStorage.getItem('token'));
     const [loading, setLoading] = useState(true);
+
     const [demoMode, setDemoMode] = useState(false);
 
     useEffect(() => {
@@ -52,6 +53,18 @@ export const AuthProvider = ({ children }) => {
             return { success: true };
         }
 
+
+
+    useEffect(() => {
+        if (token) {
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            // You could add user info validation here
+        }
+        setLoading(false);
+    }, [token]);
+
+    const login = async (email, password) => {
+
         try {
             const response = await axios.post('http://localhost:5000/api/auth/login', {
                 email,
@@ -74,6 +87,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const register = async (userData) => {
+
         if (demoMode) {
             // Demo registration
             const demoUser = {
@@ -87,6 +101,7 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('token', 'demo_token');
             return { success: true };
         }
+
 
         try {
             const response = await axios.post('http://localhost:5000/api/auth/register', userData);
@@ -119,8 +134,12 @@ export const AuthProvider = ({ children }) => {
         login,
         register,
         logout,
+
         loading,
         demoMode
+
+        loading
+
     };
 
     return (

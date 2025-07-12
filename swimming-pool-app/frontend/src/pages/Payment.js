@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -19,6 +20,41 @@ const MockPaymentForm = ({ passType, onPaymentSuccess }) => {
             ...formData,
             [e.target.name]: e.target.value
         });
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { loadStripe } from '@stripe/stripe-js';
+import {
+    Elements,
+    CardElement,
+    useStripe,
+    useElements
+} from '@stripe/react-stripe-js';
+import axios from 'axios';
+import './Payment.css';
+
+// Initialize Stripe (use your publishable key here)
+const stripePromise = loadStripe('pk_test_51234567890abcdef'); // Replace with your Stripe publishable key
+
+const PaymentForm = ({ passType, onPaymentSuccess }) => {
+    const stripe = useStripe();
+    const elements = useElements();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [clientSecret, setClientSecret] = useState('');
+
+    useEffect(() => {
+        createPaymentIntent();
+    }, []);
+
+    const createPaymentIntent = async () => {
+        try {
+            const response = await axios.post('http://localhost:5000/api/payments/create-intent', {
+                passTypeId: passType.id
+            });
+            setClientSecret(response.data.clientSecret);
+        } catch (error) {
+            setError('Failed to initialize payment');
+        }
     };
 
     const handleSubmit = async (event) => {
@@ -29,6 +65,8 @@ const MockPaymentForm = ({ passType, onPaymentSuccess }) => {
         // Basic validation
         if (!formData.cardNumber || !formData.expiryDate || !formData.cvv || !formData.cardholderName) {
             setError('Please fill in all fields');
+        if (!stripe || !elements) {
+            setError('Stripe has not loaded yet');
             setLoading(false);
             return;
         }
@@ -44,6 +82,24 @@ const MockPaymentForm = ({ passType, onPaymentSuccess }) => {
                     paymentId: mockPaymentId,
                     passTypeId: passType.id,
                     amount: passType.price
+        const card = elements.getElement(CardElement);
+
+        // Confirm payment
+        const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+            payment_method: {
+                card: card,
+            }
+        });
+
+        if (error) {
+            setError(error.message);
+            setLoading(false);
+        } else {
+            // Payment succeeded
+            try {
+                const response = await axios.post('http://localhost:5000/api/payments/process', {
+                    paymentIntentId: paymentIntent.id,
+                    passTypeId: passType.id
                 });
                 
                 onPaymentSuccess(response.data.pass);
@@ -52,6 +108,11 @@ const MockPaymentForm = ({ passType, onPaymentSuccess }) => {
             }
             setLoading(false);
         }, 2000); // Simulate 2 second processing time
+                setError('Payment succeeded but failed to create pass');
+            }
+        }
+        
+        setLoading(false);
     };
 
     return (
@@ -109,6 +170,25 @@ const MockPaymentForm = ({ passType, onPaymentSuccess }) => {
                 </div>
             </div>
 
+            <div className="card-element-container">
+                <CardElement
+                    options={{
+                        style: {
+                            base: {
+                                fontSize: '16px',
+                                color: '#424770',
+                                '::placeholder': {
+                                    color: '#aab7c4',
+                                },
+                            },
+                            invalid: {
+                                color: '#9e2146',
+                            },
+                        },
+                    }}
+                />
+            </div>
+            
             {error && <div className="error-message">{error}</div>}
             
             <button 
@@ -122,6 +202,11 @@ const MockPaymentForm = ({ passType, onPaymentSuccess }) => {
             <div className="mock-notice">
                 💡 This is a mock payment system for testing. No real charges will be made.
             </div>
+                disabled={!stripe || loading || !clientSecret}
+                className="payment-button"
+            >
+                {loading ? 'Processing...' : `Pay $${passType.price}`}
+            </button>
         </form>
     );
 };
@@ -136,6 +221,11 @@ const Payment = () => {
     const [purchasedPass, setPurchasedPass] = useState(null);
 
     const fetchPassType = useCallback(async () => {
+    useEffect(() => {
+        fetchPassType();
+    }, [passId]);
+
+    const fetchPassType = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/pass-types');
             const selectedPass = response.data.find(pass => pass.id === parseInt(passId));
@@ -154,7 +244,8 @@ const Payment = () => {
 
     useEffect(() => {
         fetchPassType();
-    }, [fetchPassType]);
+        }, [fetchPassType]);
+    };
 
     const handlePaymentSuccess = (pass) => {
         setPurchasedPass(pass);
@@ -219,6 +310,7 @@ const Payment = () => {
                 <div className="payment-header">
                     <h2>Complete Your Purchase</h2>
                     <p>🇮🇳 Mock Payment System (India-Friendly)</p>
+                    <p>Secure payment powered by Stripe</p>
                 </div>
                 
                 <div className="pass-summary">
@@ -226,6 +318,7 @@ const Payment = () => {
                     <p>{passType.description}</p>
                     <div className="price-display">
                         <span className="price">₹{(passType.price * 83).toFixed(2)}</span>
+                        <span className="price">${passType.price}</span>
                         <span className="duration">
                             {passType.duration_days === 1 ? 'Per Day' : 
                              passType.duration_days === 30 ? 'Per Month' : 
@@ -246,6 +339,18 @@ const Payment = () => {
                     <p>🔒 This is a test payment system</p>
                     <p>💳 No real charges will be made</p>
                     <p>📱 You'll receive your QR code after mock payment</p>
+                    <Elements stripe={stripePromise}>
+                        <PaymentForm 
+                            passType={passType} 
+                            onPaymentSuccess={handlePaymentSuccess}
+                        />
+                    </Elements>
+                </div>
+                
+                <div className="security-notice">
+                    <p>🔒 Your payment information is secure and encrypted</p>
+                    <p>💳 We accept all major credit cards</p>
+                    <p>📱 You'll receive your QR code immediately after payment</p>
                 </div>
             </div>
         </div>

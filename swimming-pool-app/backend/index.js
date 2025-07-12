@@ -186,6 +186,7 @@ app.post('/api/payments/create-intent', authenticateToken, async (req, res) => {
     }
 });
 
+
 // Mock Payment Processing (India-friendly)
 app.post('/api/payments/mock-process', authenticateToken, async (req, res) => {
     try {

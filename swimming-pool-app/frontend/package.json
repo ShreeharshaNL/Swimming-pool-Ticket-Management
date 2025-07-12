@@ -2,20 +2,34 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+
   "homepage": "https://yourusername.github.io/swimming-pool-app",
   "dependencies": {
     "@stripe/react-stripe-js": "^2.4.0",
     "@stripe/stripe-js": "^2.4.0",
+
+  "dependencies": {
+    "@stripe/react-stripe-js": "^3.7.0",
+    "@stripe/stripe-js": "^7.4.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
+
     "axios": "^1.6.7",
     "qrcode": "^1.5.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-qr-code": "^2.0.12",
     "react-router-dom": "^6.8.1",
+
+    "axios": "^1.10.0",
+    "qrcode": "^1.5.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-qr-code": "^2.0.18",
+    "react-router-dom": "^7.6.3",
+
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
@@ -23,9 +37,13 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
+=======
+    "eject": "react-scripts eject"
+
   },
   "eslintConfig": {
     "extends": [
@@ -47,5 +65,6 @@
   },
   "devDependencies": {
     "gh-pages": "^6.1.1"
+
   }
 }
