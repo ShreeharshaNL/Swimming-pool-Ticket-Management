@@ -8,18 +8,52 @@ const Home = () => {
     const [passTypes, setPassTypes] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, demoMode } = useAuth();
+
+    // Demo data for GitHub Pages
+    const demoPassTypes = [
+        {
+            id: 1,
+            name: 'Daily Pass',
+            description: 'Access to swimming pool for one day',
+            price: 15.00,
+            duration_days: 1
+        },
+        {
+            id: 2,
+            name: 'Monthly Pass',
+            description: 'Access to swimming pool for one month',
+            price: 120.00,
+            duration_days: 30
+        },
+        {
+            id: 3,
+            name: 'Yearly Pass',
+            description: 'Access to swimming pool for one year',
+            price: 1000.00,
+            duration_days: 365
+        }
+    ];
 
     useEffect(() => {
         fetchPassTypes();
-    }, []);
+    }, [demoMode]);
 
     const fetchPassTypes = async () => {
+        if (demoMode) {
+            // Use demo data when backend is not available
+            setPassTypes(demoPassTypes);
+            setLoading(false);
+            return;
+        }
+
         try {
             const response = await axios.get('http://localhost:5000/api/pass-types');
             setPassTypes(response.data);
         } catch (error) {
             console.error('Error fetching pass types:', error);
+            // Fallback to demo data
+            setPassTypes(demoPassTypes);
         } finally {
             setLoading(false);
         }
@@ -30,11 +64,29 @@ const Home = () => {
             navigate('/login');
             return;
         }
+        
+        if (demoMode) {
+            alert('Demo Mode: In a real deployment, this would redirect to payment processing!');
+            return;
+        }
+        
         navigate(`/payment/${passId}`);
     };
 
     return (
         <div className="home">
+            {demoMode && (
+                <div style={{
+                    background: '#fff3cd',
+                    color: '#856404',
+                    padding: '10px',
+                    textAlign: 'center',
+                    borderBottom: '1px solid #ffeaa7'
+                }}>
+                    🚀 Demo Mode: This is a static preview. Backend features are simulated.
+                </div>
+            )}
+            
             {/* Hero Section */}
             <section className="hero">
                 <div className="hero-content">
@@ -120,7 +172,7 @@ const Home = () => {
                                         className="buy-button"
                                         onClick={() => handleBuyPass(pass.id)}
                                     >
-                                        {user ? 'Buy Now' : 'Login to Buy'}
+                                        {user ? (demoMode ? 'View Demo' : 'Buy Now') : 'Login to Buy'}
                                     </button>
                                 </div>
                             ))}

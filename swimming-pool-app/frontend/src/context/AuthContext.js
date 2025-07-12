@@ -15,16 +15,43 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(localStorage.getItem('token'));
     const [loading, setLoading] = useState(true);
+    const [demoMode, setDemoMode] = useState(false);
 
     useEffect(() => {
-        if (token) {
+        // Check if backend is available
+        const checkBackend = async () => {
+            try {
+                await axios.get('http://localhost:5000/health');
+                setDemoMode(false);
+            } catch (error) {
+                console.log('Backend not available - running in demo mode');
+                setDemoMode(true);
+            }
+            setLoading(false);
+        };
+
+        if (token && !demoMode) {
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            // You could add user info validation here
         }
-        setLoading(false);
-    }, [token]);
+        
+        checkBackend();
+    }, [token, demoMode]);
 
     const login = async (email, password) => {
+        if (demoMode) {
+            // Demo login
+            const demoUser = {
+                id: 1,
+                username: 'demo_user',
+                email: email,
+                fullName: 'Demo User'
+            };
+            setUser(demoUser);
+            setToken('demo_token');
+            localStorage.setItem('token', 'demo_token');
+            return { success: true };
+        }
+
         try {
             const response = await axios.post('http://localhost:5000/api/auth/login', {
                 email,
@@ -47,6 +74,20 @@ export const AuthProvider = ({ children }) => {
     };
 
     const register = async (userData) => {
+        if (demoMode) {
+            // Demo registration
+            const demoUser = {
+                id: 1,
+                username: userData.username,
+                email: userData.email,
+                fullName: userData.fullName
+            };
+            setUser(demoUser);
+            setToken('demo_token');
+            localStorage.setItem('token', 'demo_token');
+            return { success: true };
+        }
+
         try {
             const response = await axios.post('http://localhost:5000/api/auth/register', userData);
             
@@ -78,7 +119,8 @@ export const AuthProvider = ({ children }) => {
         login,
         register,
         logout,
-        loading
+        loading,
+        demoMode
     };
 
     return (
